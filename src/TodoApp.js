@@ -13,26 +13,6 @@ export default class App extends Component {
 		};
 	};
 
-	template() {
-		return `<h1>TODOS</h1>`;
-	};
-
-	setEvent() {
-		this.addEvent("change", ".toggle", ({ target }) => {
-			const id = target.closest("[data-id]").dataset.id;
-
-			
-		});
-		this.addEvent("click", ".destroy", ({ target }) => {
-			deleteEvent(target.closest("[data-id]").dataset.id);
-		});
-		this.addEvent("dblclick", ".label", ({ target }) => {
-			const id = target.closest("[data-id]").dataset.id;
-
-			console.log(this.$state.todos)
-		});
-	};
-
 	addItem(text) {
 		const id = Math.max(0, ...Object.keys(this.$state.todos)) + 1;
 		const active = false;
@@ -45,7 +25,8 @@ export default class App extends Component {
 		});
 	};
 
-	toggleEvent() {
+	toggleItem(id) {
+		const { todos } = this.$state;
 		this.setState({
 			todos: {
 				...this.$state.todos,
@@ -66,38 +47,41 @@ export default class App extends Component {
 		this.setState({ filterType });
 	};
 
-	mounted() {
-		const { addItem, template, render, toggleEvent, deleteEvent } = this;
+	render() {
+		const { todos } = this.$state;
+
 		const $todoapp = document.querySelector(".todoapp");
 		const $main = document.querySelector("main");
 		const $todoCountBox = document.querySelector(".count-container");
 
 		const input = new TodoInput($todoapp, {
-			addItem: addItem.bind(this),
+			addItem: contents => this.addItem(contents)
 		});
-
-		const list = new TodoList($main, {
-			state: this.$state,
-			toggleEvent: toggleEvent,
-			deleteEvent: deleteEvent,
-		});
-
+		const list = new TodoList($main, { todos });
 		const countBox = new TodoCounter($todoCountBox, {
-			todoCount: Math.max(0, ...Object.keys(this.$state.todos))
+			todoCount: Object.keys(todos).length
 		});
 
-		this.input = input;
-		this.list = list;
-		this.countBox = countBox;
+		this.$target.innerHTML = `
+			<h1>TODOS</h1>
+			${input.template()}
+			${list.template()}
+			${countBox.template()}
+		`
 	};
 
-	render() {
-		this.mounted();
+	setEvent() {
+		this.addEvent("change", ".toggle", ({ target }) => {
+			const id = target.closest("[data-id]").dataset.id;
+			this.toggleItem(id);
+		});
+		this.addEvent("click", ".destroy", ({ target }) => {
+			this.deleteEvent(target.closest("[data-id]").dataset.id);
+		});
+		this.addEvent("dblclick", ".label", ({ target }) => {
+			const id = target.closest("[data-id]").dataset.id;
 
-		const { input, list, countBox } = this;
-
-		this.$target.innerHTML = this.template();
-		this.$target.innerHTML += input.template();
-		this.$target.innerHTML += (list.template() + countBox.template());
+			console.log(this.$state.todos)
+		});
 	};
 };

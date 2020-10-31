@@ -7,15 +7,12 @@ export default class Component{
 		this.init();
 		this.setEvent();
 		this.render();
-
-		return this;
 	};
 
 	template() {return ``};
 
 	init () {};
 	render() {};
-	mounted() {};
 	setEvent() {};
 
 	setState(newState) {
@@ -32,24 +29,5 @@ export default class Component{
 
 			callback(event);
 		});
-	};
-
-	objectForEach(object, callback) {
-		let index = 0;
-
-		for(let key in object) {
-			callback(object[key], index);
-			index++;
-		}
-	};
-
-	getStateValue(object) {
-		const arr = [];
-
-		this.objectForEach(object, item => {
-			arr.push(item);
-		});
-
-		return arr;
 	};
 };
